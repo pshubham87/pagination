@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:biometricpagi/Auth/auth.dart';
+import 'package:biometricpagi/Pagination/infiniteScroll.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 void main() async {
-  await Hive.initFlutter();
+  // await Hive.initFlutter();
   runApp(const MyApp());
 }
 
@@ -18,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.grey,
       ),
-      home: const AuthScreen(),
+      home: InfiniteScrollPaginatorDemo(),
     );
   }
 }

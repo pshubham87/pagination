@@ -33,7 +33,6 @@ class _AuthScreenState extends State<AuthScreen> {
         localizedReason: "please Authenticate",
         options: const AuthenticationOptions(
           stickyAuth: true,
-          biometricOnly: true,
           useErrorDialogs: true,
         ));
     if (didAuthenticate) {
@@ -50,7 +49,12 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(),
+      body: Center(
+          child: ElevatedButton(
+              onPressed: () {
+                authenticate();
+              },
+              child: Text("     START     "))),
     );
   }
 }

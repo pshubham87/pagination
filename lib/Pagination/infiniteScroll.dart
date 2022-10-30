@@ -19,15 +19,18 @@ class InfiniteScrollPaginatorDemo extends StatefulWidget {
 class _InfiniteScrollPaginatorDemoState
     extends State<InfiniteScrollPaginatorDemo> {
   late Box box;
-  Future openBox() async {
-    var dir = await getApplicationDocumentsDirectory();
-    Hive.init(dir.path);
-    box = await Hive.openBox("data");
-  }
+
+  // Future openBox() async {
+  //   var dir = await getApplicationDocumentsDirectory();
+  //   Hive.init(dir.path);
+  //   box = await Hive.openBox("data");
+  // }
 
   final _numberOfPostsPerRequest = 15;
   final PagingController<int, Post> _pagingController =
       PagingController(firstPageKey: 0);
+
+  bool _error = false;
 
   @override
   void initState() {
@@ -38,19 +41,22 @@ class _InfiniteScrollPaginatorDemoState
   }
 
   Future<void> _fetchPage(int pageKey) async {
-    await openBox();
+    // await openBox();
     try {
       final response = await get(Uri.parse(
-          "https://api.github.com/users/JakeWharton/repos?page=$pageKey&_limit=$_numberOfPostsPerRequest"));
+          "https://api.github.com/users/JakeWharton/repos?page=$pageKey&per_page=15"));
       List responseList = json.decode(response.body);
+      // await putdata(responseList);
       List<Post> postList = responseList
           .map((data) => Post(
-                data['description'],
-                data['name'],
-                data['watchers_count'],
-                data['open_issues'],
+                data['description'] ?? " ",
+                data['name'] ?? " ",
+                data['language'] ?? " ",
+                data['watchers_count'] ?? " ",
+                data['open_issues'] ?? " ",
               ))
           .toList();
+
       final isLastPage = postList.length < _numberOfPostsPerRequest;
       if (isLastPage) {
         _pagingController.appendLastPage(postList);
@@ -58,9 +64,45 @@ class _InfiniteScrollPaginatorDemoState
         final nextPageKey = pageKey + 1;
         _pagingController.appendPage(postList, nextPageKey);
       }
-    } catch (SocketExeption) {
-      print("no internet");
+    } catch (e) {
+      print('$e');
     }
+
+    // var mymap = box.toMap().values.toList();
+    // if (mymap.isEmpty) {
+    //   data.add("empty");
+    // } else {
+    //   data = mymap;
+    // }
+  }
+
+  // Future putdata(data) async {
+  //   await box.clear();
+  //   for (var d in data) {
+  //     box.add(d);
+  //   }
+  // }
+
+  Widget errorDialog({required double size}) {
+    return SizedBox(
+      height: 180,
+      width: 200,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'An error occurred when fetching the posts.',
+            style: TextStyle(
+                fontSize: size,
+                fontWeight: FontWeight.w500,
+                color: Colors.black),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -84,14 +126,26 @@ class _InfiniteScrollPaginatorDemoState
           child: PagedListView<int, Post>(
             pagingController: _pagingController,
             builderDelegate: PagedChildBuilderDelegate<Post>(
-              itemBuilder: (context, item, index) => PostItem(
+                itemBuilder: (context, item, index) {
+              if (index == PostItem) {
+                if (_error) {
+                  return Center(child: errorDialog(size: 15));
+                } else {
+                  return const Center(
+                      child: Padding(
+                    padding: EdgeInsets.all(8),
+                    child: CircularProgressIndicator(),
+                  ));
+                }
+              }
+              return PostItem(
                 item.description,
                 item.name,
+                item.language,
                 item.watchers_count,
                 item.open_issues,
-                // item.Language,
-              ),
-            ),
+              );
+            }),
           ),
         ),
       ),

@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class PostItem extends StatelessWidget {
   final String description;
   final String name;
+  final String language;
   final int watchers_count;
   final int open_issues;
 
   PostItem(
     this.description,
     this.name,
+    this.language,
     this.watchers_count,
     this.open_issues,
   );
@@ -62,6 +64,16 @@ class PostItem extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          Text(
+                            '<...>',
+                            style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400),
+                          ),
+                          Text(language.toString()),
+                          SizedBox(
+                            width: 10,
+                          ),
                           Icon(Icons.bug_report),
                           Text(open_issues.toString()),
                           SizedBox(
